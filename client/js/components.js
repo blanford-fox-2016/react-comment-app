@@ -33,9 +33,29 @@ var CommentBox = React.createClass({
       dataType: 'JSON',
       type: 'POST',
       data: comment,
-      success: function(res_new_data){
+      success: function(response){
         this.setState({
-          data: res_new_data
+          data: response
+        })
+      }.bind(this),
+      error: function(xhr, status, err){
+        this.setState({
+          data: comments
+        })
+        console.error(this.props.url, status, err.toString())
+      }.bind(this)
+    })
+  },
+  handleCommentDelete: function(id){
+    var comments = this.state.data
+    $.ajax({
+      url: this.props.url,
+      dataType: 'JSON',
+      type: 'DELETE',
+      data: {id: id},
+      success: function(response){
+        this.setState({
+          data: response
         })
       }.bind(this),
       error: function(xhr, status, err){
@@ -49,8 +69,12 @@ var CommentBox = React.createClass({
   render: function(){
     return(
       <div className="commentBox">
-        <h1>Comments App</h1>
-        <CommentList data={this.state.data}/>
+        <div className="jumbotron">
+        <div className="container text-center">
+          <h1>Hacktiv8 Comments Apps</h1>
+        </div>
+      </div>
+        <CommentList data={this.state.data} handleCommentDelete={this.handleCommentDelete}/>
         <CommentForm onCommentSubmit={this.handleCommentSubmit} />
       </div>
     )
@@ -58,13 +82,18 @@ var CommentBox = React.createClass({
 })
 
 var CommentList = React.createClass({
+  onCommentDelete(){
+    // ISIII
+    // DIIIII
+    // SINIIII
+  },
   render: function(){
     var h2 = <h2>Comment List</h2>
     var commentNodes = this.props.data.map((comment) => {
       return(
-        <Comment key={comment.id} id={comment.id} author={comment.author} text={comment.text} />
+        <Comment key={comment.id} id={comment.id} author={comment.author} text={comment.text} handleCommentDelete={this.props.handleCommentDelete}/>
       )
-    })
+    }.bind(this))
     return (<div>{commentNodes}</div>)
   }
 })
@@ -73,11 +102,27 @@ var Comment = React.createClass({
   render(){
     return (
       <div className="comment" id={this.props.id}>
-        <p>
-          <b>{this.props.author}</b> - {this.props.text}
-        </p>
+        <div className="well">
+          <h3>{this.props.author}</h3>
+          <p>{this.props.text}</p>
+          <DeleteButton id={this.props.id} onCommentDelete={this.props.handleCommentDelete}/>
+        </div>
       </div>
     )
+  }
+})
+
+var DeleteButton = React.createClass({
+  handleDelete(e){
+    e.preventDefault()
+    var id = this.props.id
+    console.log(id)
+    this.props.onCommentDelete(id)
+  },
+  render(){
+    return(
+      <button className="btn btn-danger btn-sm" onClick={this.handleDelete}>Delete Comment</button>
+      )
   }
 })
 
@@ -117,11 +162,15 @@ var CommentForm = React.createClass({
   },
   render(){
     return(
-      <form onSubmit={this.handleSubmit}>
-        <input type="text" placeholder="Your Name" value={this.state.author} onChange={this.handleAuthorChange} />
-        <input type="text" onChange={this.handleTextChange} value={this.state.text} />
-        <input type="submit" value="Add Post" />
+      <div className="well">
+        <form onSubmit={this.handleSubmit}>
+        <input className="form-control" type="text" placeholder="Enter Name" value={this.state.author} onChange={this.handleAuthorChange} />
+        <br/>
+        <textarea className="form-control" type="text" placeholder="Enter comment" onChange={this.handleTextChange} value={this.state.text}></textarea>
+        <br/>
+        <input className="btn btn-md btn-primary" type="submit" value="Add Post" />
       </form>
+      </div>
     )
   }
 })
