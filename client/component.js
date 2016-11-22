@@ -17,6 +17,7 @@ var CommentBox = React.createClass({
   },
   handleCommentSubmit: function(comment) {
     var comments = this.state.data
+    console.log(comments);
     comment.id = Date.now()
     var newComments = comments.concat([comment])
     this.setState({data: newComments})
@@ -37,6 +38,8 @@ var CommentBox = React.createClass({
   deleteItem: function(parameter) {
     var del = confirm('Are you sure want to delete this data ?')
     if (del) {
+      var comments = this.state.data
+      console.log(comments);
       $.ajax({
         url: `http://localhost:3000/api/comments`,
         method: 'DELETE',
@@ -147,7 +150,7 @@ var CommentForm = React.createClass({
         <label>Text : </label>
         <input className="form-control" type="text" placeholder="Enter Text" value={this.state.text} onChange={this.handleTextChange} />
         </div>
-        <button className="btn btn-danger" type="submit">Post</button>
+        <button className="btn btn-primary" type="submit">Post</button>
       </form>
     )
   }
