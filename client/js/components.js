@@ -1,25 +1,23 @@
-// statefull
 var CommentBox = React.createClass({
   getInitialState: function(){
     return {data: []}
   },
-  //custom function
   loadComments: function(){
     $.ajax({
       url: this.props.url,
       dataType: 'JSON',
       cache: false,
-      success: function(res_data){
+      success: function(response){
         this.setState({
-          data: res_data
+          data: response
         })
-      }.bind(this),// for point parent this : CommentBox
+      }.bind(this),
       error: function(xhr, status, err){
         console.error(this.props.url, status, err.toString());
       }.bind(this)
     })
   },
-  componentDidMount: function(){// function name from React
+  componentDidMount: function(){
     this.loadComments()
   },
   handleCommentSubmit: function(comment){
@@ -57,27 +55,16 @@ var CommentBox = React.createClass({
       </div>
     )
   }
-  /*
-  alternative:
-  render (){
-  }
-  */
 })
 
-// stateless
 var CommentList = React.createClass({
   render: function(){
     var h2 = <h2>Comment List</h2>
     var commentNodes = this.props.data.map((comment) => {
-      // Comment is a componen
-      // key for props in each data
       return(
         <Comment key={comment.id} id={comment.id} author={comment.author} text={comment.text} />
       )
     })
-    // return(
-    //   div(null, {commentNodes})
-    // )
     return (<div>{commentNodes}</div>)
   }
 })
