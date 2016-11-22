@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require('express');
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -9,8 +11,8 @@ const fs = require('fs')
 
 const COMMENTS_FILE = path.join(__dirname, 'comments.json')
 
-// const mongoose = require('mongoose')
-// mongoose.connect(procces.env.DATABASE)
+const mongoose = require('mongoose')
+mongoose.connect(process.env.DATABASE)
 
 const routes = require('./routes/index');
 const users = require('./routes/users');
@@ -38,36 +40,36 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-// app.use('/api/comments', routes);
+app.use('/api/comments', routes);
 // app.use('/users', users);
 
 
 //router
-app.get('/api/comments', function (req, res) {
-    fs.readFile(COMMENTS_FILE, function (err, data) {
-        if (err) res.json(err)
-        else res.json(JSON.parse(data))
-    })
-})
-
-app.post('/api/comments', function (req, res) {
-    fs.readFile(COMMENTS_FILE, function (err, data) {
-        if (err) res.json(err)
-        else {
-            let comments = JSON.parse(data)
-            let newComment = {
-                id: Date.now(),
-                author: req.body.author,
-                text: req.body.text
-            }
-            comments.push(newComment)
-            fs.writeFile(COMMENTS_FILE, JSON.stringify(comments, null, 4), function (err) {
-                if (err) res.json(err)
-                else res.json(comments)
-            })
-        }
-    })
-})
+// app.get('/api/comments', function (req, res) {
+//     fs.readFile(COMMENTS_FILE, function (err, data) {
+//         if (err) res.json(err)
+//         else res.json(JSON.parse(data))
+//     })
+// })
+//
+// app.post('/api/comments', function (req, res) {
+//     fs.readFile(COMMENTS_FILE, function (err, data) {
+//         if (err) res.json(err)
+//         else {
+//             let comments = JSON.parse(data)
+//             let newComment = {
+//                 id: Date.now(),
+//                 author: req.body.author,
+//                 text: req.body.text
+//             }
+//             comments.push(newComment)
+//             fs.writeFile(COMMENTS_FILE, JSON.stringify(comments, null, 4), function (err) {
+//                 if (err) res.json(err)
+//                 else res.json(comments)
+//             })
+//         }
+//     })
+// })
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

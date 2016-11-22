@@ -59,7 +59,7 @@ let CommentList = React.createClass({
     //state less
     render: function () {
         let commentNodes = this.props.data.map(function (comment) {
-            return(<Comment key={comment.id} author={comment.author} text={comment.text}/>)
+            return(<Comment key={comment._id} author={comment.author} text={comment.comment}/>)
         })
         return(
             <div>{commentNodes}</div>
@@ -100,7 +100,7 @@ let CommentForm = React.createClass({
         let text = this.state.text.trim()
         if (!text || ! author) return
         else {
-            this.props.onCommentSubmit({author: author, text: text})
+            this.props.onCommentSubmit({author: author, comment: text})
             this.setState({author: ''})
             this.setState({text: ''})
         }
