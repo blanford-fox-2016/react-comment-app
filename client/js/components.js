@@ -87,9 +87,21 @@ var CommentList = React.createClass({
 })
 
 var Comment = React.createClass({
+  deleteData(){
+    var r = confirm()
+
+    if(r === true){
+      console.log(`yes`);
+      this.setState({
+        author: '',
+        text: ''
+      })
+    }
+  },
   render(){
     return (
       <div className="comment" id={this.props.id}>
+        <button onClick={this.deleteData}>x</button>
         <h4>
           {this.props.author}
         </h4>
