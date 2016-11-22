@@ -1,1 +1,32 @@
-[]
+[
+    {
+        "id": 0,
+        "author": "Rubi",
+        "text": "Learning React"
+    },
+    {
+        "id": 1,
+        "author": "Juang",
+        "text": "Learning and unlearning again and learning again"
+    },
+    {
+        "id": "1479791361236",
+        "author": "hahah",
+        "text": "akhfdkahjf"
+    },
+    {
+        "id": "1479791406172",
+        "author": "Juang",
+        "text": "Wiantoro"
+    },
+    {
+        "id": "1479791469562",
+        "author": "Juang wiantoro",
+        "text": "hahahahahahahahahahahahahahahahahahah"
+    },
+    {
+        "id": "1479794391140",
+        "author": "test",
+        "text": "juang"
+    }
+]

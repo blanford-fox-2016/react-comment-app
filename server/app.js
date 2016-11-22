@@ -32,7 +32,7 @@ app.post('/api/comments', (req, res) => {
     }
     let comments = JSON.parse(data)
     let newComment = {
-      id: Date.now(),
+      id: req.body.id,
       author: req.body.author,
       text: req.body.text
     };
