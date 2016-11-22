@@ -1,5 +1,4 @@
 const BASE_URL = 'http://localhost:3000/api/comments'
-
 let CommentBox = React.createClass({
     //Statefull
     getInitialState: function () {
@@ -91,6 +90,13 @@ let CommentList = React.createClass({
     }
 })
 
+let MarkdownViewer = React.createClass({
+    render: function() {
+        let markdowns = marked.parse(this.props.markdowns);
+        return <div dangerouslySetInnerHTML={{__html: markdowns }} />;
+    }
+});
+
 let Comment = React.createClass({
     render: function () {
         return(
@@ -101,7 +107,7 @@ let Comment = React.createClass({
                         {this.props.author}
                     </div>
                     <div className="panel-body">
-                        {this.props.comment}
+                        <MarkdownViewer markdowns={this.props.comment}/>
                     </div>
                 </div>
             </div>
