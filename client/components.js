@@ -110,7 +110,7 @@ let Comment = React.createClass({
 
     handleDelete: function (e) {
         let id = e.target.id
-        this.props.onCommentDeleteCommentList(id)
+        if (confirm("are you sure?") == true) this.props.onCommentDeleteCommentList(id)
     }
 })
 
