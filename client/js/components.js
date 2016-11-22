@@ -92,7 +92,7 @@ var CommentBox = React.createClass({
       <div className="commentBox">
         <h1>Comments App</h1>
         <CommentList data={this.state.data} onDeleteSubmitCommentBox={this.handleDeleteSubmitCommentBox}/>
-        <CommentForm onCommentSubmit={this.handleCommentSubmit} />
+        <CommentForm onCommentSubmit={this.handleCommentSubmit} style_textarea={{resize: "none",height: 320 + "px"}} />
       </div>
     )
   }
@@ -209,7 +209,7 @@ var CommentForm = React.createClass({
         <label htmlFor="author">Input Author</label>
         <input type="text" placeholder="Your Name" value={this.state.author} onChange={this.handleAuthorChange} className="form-control" />
         <label htmlFor="text">Input Content</label>
-        <textarea value={this.state.text} onChange={this.handleTextChange} className="form-control" placeholder="Your content"></textarea>
+        <textarea value={this.state.text} onChange={this.handleTextChange} className="form-control" placeholder="Your content" style={this.props.style_textarea}></textarea>
         <input type="submit" value="Add Post" className="form-control" />
       </form>
     )
