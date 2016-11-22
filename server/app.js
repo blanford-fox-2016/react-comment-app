@@ -1,18 +1,21 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+const express = require('express');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 const cors = require('cors')
+const fs = require('fs')
 
-const mongoose = require('mongoose')
-mongoose.connect(procces.env.DATABASE)
+const COMMENTS_FILE = path.join(__dirname, 'comments.json')
 
-var routes = require('./routes/index');
-var users = require('./routes/users');
+// const mongoose = require('mongoose')
+// mongoose.connect(procces.env.DATABASE)
 
-var app = express();
+const routes = require('./routes/index');
+const users = require('./routes/users');
+
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -23,16 +26,52 @@ app.set('view engine', 'ejs');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+//isi cors
+app.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Cache-Control', 'no-cache')
+    next()
+})
+
 app.use(cookieParser());
-app.use(cors())
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/api/comments', routes);
-app.use('/users', users);
+
+// app.use('/api/comments', routes);
+// app.use('/users', users);
+
+
+//router
+app.get('/api/comments', function (req, res) {
+    fs.readFile(COMMENTS_FILE, function (err, data) {
+        if (err) res.json(err)
+        else res.json(JSON.parse(data))
+    })
+})
+
+app.post('/api/comments', function (req, res) {
+    fs.readFile(COMMENTS_FILE, function (err, data) {
+        if (err) res.json(err)
+        else {
+            let comments = JSON.parse(data)
+            let newComment = {
+                id: Date.now(),
+                author: req.body.author,
+                text: req.body.text
+            }
+            comments.push(newComment)
+            fs.writeFile(COMMENTS_FILE, JSON.stringify(comments, null, 4), function (err) {
+                if (err) res.json(err)
+                else res.json(comments)
+            })
+        }
+    })
+})
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  const err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
