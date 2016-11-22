@@ -1,7 +1,13 @@
 // statefull
 var CommentBox = React.createClass({
   getInitialState: function(){
-    return {data: []}
+    return {
+      data: [],
+      edit_form: {
+        commentId: '',
+        author: '',
+        text: ''
+      }}
   },
   //custom function
   loadComments: function(){
@@ -87,21 +93,55 @@ var CommentBox = React.createClass({
       }.bind(this)
     })
   },
+  handleEditFillForm : function(id){
+    var index = this.state.data.findIndex((comment) => comment.id === id)
+    // console.log(this.state.data[index]);
+    this.setState({
+      edit_form : {
+        commentId: this.state.data[index].id,
+        author: this.state.data[index].author,
+        text: this.state.data[index].text
+      }
+    })
+  },
+  handleCommentEdit(edited_data){
+    var comments = this.state.data
+    $.ajax({
+      url: this.props.url+edited_data.commentId,
+      dataType: 'JSON',
+      method: 'PUT',
+      data: {
+        author: edited_data.author,
+        text: edited_data.text
+      },
+      success: function(data_res){
+        console.log(data_res);
+        this.setState({
+          data: data_res,
+          edit_form:{
+            commentId: '',
+            author: '',
+            text: ''
+          }
+        })
+      }.bind(this),
+      error: function(xhr, status, err){
+        this.setState({
+          data: comments
+        })
+        console.error(this.props.url, status, err.toString())
+      }.bind(this)
+    })
+  },
   render: function(){
     return(
       <div className="commentBox">
         <h1>Comments App</h1>
-        <CommentList data={this.state.data} onDeleteSubmitCommentBox={this.handleDeleteSubmitCommentBox}/>
-        <CommentForm onCommentSubmit={this.handleCommentSubmit} style_textarea={{resize: "none",height: 320 + "px"}} />
+        <CommentList data={this.state.data} onDeleteSubmitCommentBox={this.handleDeleteSubmitCommentBox} onEditFillForm={this.handleEditFillForm} />
+        <CommentForm onCommentSubmit={this.handleCommentSubmit} style_textarea={{resize: "none",height: 320 + "px"}} edit_form={this.state.edit_form} onCommentEdit={this.handleCommentEdit} />
       </div>
     )
   }
-  /*
-  alternative:
-  render (){
-
-  }
-  */
 })
 
 // stateless
@@ -116,13 +156,16 @@ var CommentList = React.createClass({
     //   comment.id
     // }));
   },
+  handleEditFillForm: function(id){
+    this.props.onEditFillForm(id)
+  },
   render: function(){
     var h2 = <h2>Comment List</h2>
     var commentNodes = this.props.data.map((comment) => {
       // Comment is a componen
       // key for props in each data
       return(
-        <Comment key={comment.id} commentId={comment.id} author={comment.author} text={comment.text} onDeleteSubmitCommentList={this.handleDeleteSubmitCommentList} /*all_data={this.props.data}*//>
+        <Comment key={comment.id} commentId={comment.id} author={comment.author} text={comment.text} onDeleteSubmitCommentList={this.handleDeleteSubmitCommentList} onEditFillForm={this.handleEditFillForm}/*all_data={this.props.data}*//>
       )
     })
     // return(
@@ -142,13 +185,12 @@ var MarkdownViewer = React.createClass({
 
 var Comment = React.createClass({
   deleteData(){
-    // console.log(this.props.commentId);
-    // console.log(this.props.all_data);
-    // var r = confirm()
-    // this.props.onDeleteSubmitCommentList(this.props.commentId)
     if(confirm("Are you sure want to delete?") === true){
       this.props.onDeleteSubmitCommentList(this.props.commentId)
     }
+  },
+  editData(){
+    this.props.onEditFillForm(this.props.commentId)
   },
   render(){
     return (
@@ -162,7 +204,8 @@ var Comment = React.createClass({
           <MarkdownViewer markdown={this.props.text} />
         </div>
         <div className="panel-footer">
-          <button onClick={this.deleteData} className="btn btn-default btn-sm">Delete</button>
+          <button onClick={this.editData} className="btn btn-success btn-sm">Edit</button>
+          <button onClick={this.deleteData} className="btn btn-warning btn-sm">Delete</button>
         </div>
       </div>
     )
@@ -171,12 +214,22 @@ var Comment = React.createClass({
 
 var CommentForm = React.createClass({
   getInitialState(){
+    // console.log(this.props.edit_form.author);
     return ({
       author: '',
       text: ''
     })
   },
   handleAuthorChange(e){
+    // if(this.props.edit_form.author == ""){
+    //   this.setState({
+    //     author: e.target.value
+    //   })
+    // }else{
+    //   this.setProps({
+    //     author: e.target.value
+    //   }).bind(this)
+    // }
     this.setState({
       author: e.target.value
     })
@@ -203,14 +256,36 @@ var CommentForm = React.createClass({
       })
     }
   },
+  handleEdit(e){
+    e.preventDefault()
+    var author = this.state.author.trim()
+    var text = this.state.text.trim()
+    console.log(author);
+    console.log(text);
+    if(author === "" && text === ""){
+      return
+    }else{
+      console.log(`masuk`);
+      this.props.onCommentEdit({
+        commentId: this.props.edit_form.commentId,
+        author: author,
+        text: text
+      })
+      this.setState({
+        author: '',
+        text: ''
+      })
+    }
+  },
   render(){
+    // console.log(this.props.edit_form);
     return(
-      <form onSubmit={this.handleSubmit} className="form-group">
+      <form onSubmit={(this.props.edit_form.author == "") ? this.handleSubmit : this.handleEdit} className="form-group">
         <label htmlFor="author">Input Author</label>
-        <input type="text" placeholder="Your Name" value={this.state.author} onChange={this.handleAuthorChange} className="form-control" />
+        <input type="text" placeholder="Your Name" value={this.state.author || this.props.edit_form.author} onChange={this.handleAuthorChange} className="form-control" />
         <label htmlFor="text">Input Content</label>
-        <textarea value={this.state.text} onChange={this.handleTextChange} className="form-control" placeholder="Your content" style={this.props.style_textarea}></textarea>
-        <input type="submit" value="Add Post" className="form-control" />
+        <textarea value={this.state.text || this.props.edit_form.text} onChange={this.handleTextChange} className="form-control" placeholder="Your content" style={this.props.style_textarea}></textarea>
+        <input type="submit" value={(this.props.edit_form.author == "") ? "Add Post" : "Edit Post"} className="form-control" />
       </form>
     )
   }

@@ -73,7 +73,30 @@ app.delete('/api/comments/:id', function(req, res){
       })
     }
   })
+})
 
+
+app.put('/api/comments/:id', function(req, res){
+  fs.readFile(COMMENTS_FILE, function(err, data){
+    if(err){
+      console.log(err);
+    }else{
+      var comments = JSON.parse(data)
+      var index = comments.findIndex((comment) => comment.id === req.params.id)
+      comments[index] = {
+        id: req.params.id,
+        author: req.body.author,
+        text: req.body.text
+      }
+      console.log(comments);
+      fs.writeFile(COMMENTS_FILE, JSON.stringify(comments, null, 4), function(err){
+        if(err){
+          console.log(err);
+        }
+        res.status(200).json(comments)
+      })
+    }
+  })
 })
 
 app.listen(app.get('port'), function(){
