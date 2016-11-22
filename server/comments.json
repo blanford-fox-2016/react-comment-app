@@ -1,0 +1,22 @@
+[
+    {
+        "id": "1",
+        "author": "Rubi",
+        "text": "Teaching React"
+    },
+    {
+        "id": "2",
+        "author": "Juang",
+        "text": "Learning React"
+    },
+    {
+        "id": "3",
+        "author": "hi",
+        "text": "hi"
+    },
+    {
+        "id": "4",
+        "author": "ya",
+        "text": "ya"
+    }
+]
