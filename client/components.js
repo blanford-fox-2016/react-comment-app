@@ -31,11 +31,27 @@ const CommentBox = React.createClass({
       success: (response) => {
         this.setState({data: response})
       }.bind(this),
-      error: () => {
+      error: (err) => {
         this.setState({data: comments})
         console.log(this.props.url, status, err.toString()).bind(this)
       }
     })
+  },
+
+  handleDeleteCommentBox (id) {
+    var comments = this.state.data;
+    var newComments = comments.filter((comment) => comment.id !== id)
+    this.setState({data: newComments})
+    $.ajax({
+      url: this.props.url,
+      dataTypes: 'json',
+      type: 'DELETE',
+      data: newComments,
+      success: (response) => {
+        console.log('success')
+      }.bind(this)
+    })
+
   },
 
   componentDidMount () {
@@ -47,7 +63,7 @@ const CommentBox = React.createClass({
       <div className="commentBox">
         <div className='comment-title'>
           <h1> Comments App</h1>
-          <CommentList data={this.state.data}/>
+          <CommentList data={this.state.data} fromCommentList={this.handleDeleteCommentBox} />
           <CommentForm onCommentSubmit={this.handleCommentSubmit} />
         </div>
       </div>
@@ -55,48 +71,45 @@ const CommentBox = React.createClass({
   }
 })
 
-// const CommentList = React.createClass({
-//   render () {
-//     var commentNodes = this.props.data.map((comment) => (<Comment key={comment.id} author={comment.author} text={comment.text} />))
-//     return (
-//       <div>{commentNodes}</div>
-//     )
-//   }
-// })
+// comment list to show the list of comment
+const CommentList = React.createClass({
+  handleDeleteCommentList (id) {
+    this.props.fromCommentList(id)
+  },
 
-const CommentList = (props) => {
-  return (
-    <div>
-      {props.data.map((comment) => (<Comment key={comment.id} author={comment.author} text={comment.text} />))}
-    </div>
-  )
-}
-
-// const CommentList = (props) => {
-//   ren
-// }
-
-const Comment = (props) => {
-  return(
-    <div className="comment">
-      <h4>{props.author}</h4>
-      <p>{props.text}</p>
-    </div>
-  )
-}
-
-// const Comment = React.createClass({
-//   render () {
-//     return (
-//       <div className="comment">
-//         <h4>{this.props.author}</h4>
-//         <p>{this.props.text}</p>
-//       </div>
-//     )
-//   }
-// })
+  render () {
+    return (
+      <div>
+        {this.props.data.map((comment) => (<Comment key={comment.id} fromComment={this.handleDeleteCommentList} commentId = {comment.id} author={comment.author} text={comment.text} />))}
+      </div>
+    )
+  }
+})
 
 
+// comment  to show the comment author and text
+const Comment = React.createClass({
+  handleDelete () {
+    var id = this.props.commentId
+    this.props.fromComment(id)
+    // var all_comments = this.props.all_comments
+    // var newState = all_comments.filter((comment) => comment.id !== id)
+    // this.setState({data : newState})
+
+  },
+
+  render () {
+    return (
+      <div className="comment">
+        <h4>{this.props.author}</h4>
+        <p>{this.props.text}</p>
+        <button id={this.props.id} onClick={this.handleDelete}>delete</button>
+      </div>
+    )
+  }
+})
+
+// the form to get the data from form
 const CommentForm = React.createClass({
   getInitialState () {
     return {
@@ -134,11 +147,5 @@ const CommentForm = React.createClass({
   }
 })
 
-// const Comment = () => (
-//   <h3> testing </h3>
-// )
-
-
-
-
-ReactDOM.render(<CommentBox url={'http://localhost:3000/api/comments'}/>, document.getElementById('content'))
+// Rendering to the host
+ReactDOM.render(<CommentBox url={'http://localhost:3000/api/comments'} />, document.getElementById('content'))
