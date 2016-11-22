@@ -12,9 +12,17 @@ var CommentBox = React.createClass({
       cache: false,
       success: function(res_data){
         console.log(res_data);
+
         this.setState({
           data: res_data
         })
+        // this.setState({
+        //   data: {
+        //     id: res_data.,
+        //     author: ,
+        //     text:
+        //   }
+        // })
       }.bind(this),// for point parent this : CommentBox
       error: function(xhr, status, err){
         console.error(this.props.url, status, err.toString());
@@ -27,6 +35,7 @@ var CommentBox = React.createClass({
   handleCommentSubmit: function(comment){
     var comments = this.state.data
     comment.id = Date.now()
+    // comment.text = marked(`${comment.text}`)
     var newComments = comments.concat([comment])
     // console.log(newComments);
     this.setState({
@@ -123,6 +132,14 @@ var CommentList = React.createClass({
   }
 })
 
+var MarkdownViewer = React.createClass({
+  render: function() {
+      var markdown = marked.parse(this.props.markdown);
+      // console.log(this.props.markdown);
+      return <div dangerouslySetInnerHTML={{__html: markdown }} />;
+  }
+});
+
 var Comment = React.createClass({
   deleteData(){
     // console.log(this.props.commentId);
@@ -135,16 +152,18 @@ var Comment = React.createClass({
   },
   render(){
     return (
-      <div className="comment">
-        <div>
-          <button onClick={this.deleteData}>x</button>
+      <div className="comment panel panel-default">
+        <div className="panel-heading">
+          <h4>
+            {this.props.author}
+          </h4>
         </div>
-        <h4>
-          {this.props.author}
-        </h4>
-        <span>
-          {this.props.text}
-        </span>
+        <div className="panel-body">
+          <MarkdownViewer markdown={this.props.text} />
+        </div>
+        <div className="panel-footer">
+          <button onClick={this.deleteData} className="btn btn-default btn-sm">Delete</button>
+        </div>
       </div>
     )
   }
@@ -186,10 +205,12 @@ var CommentForm = React.createClass({
   },
   render(){
     return(
-      <form onSubmit={this.handleSubmit}>
-        <input type="text" placeholder="Your Name" value={this.state.author} onChange={this.handleAuthorChange} />
-        <textarea value={this.state.text} onChange={this.handleTextChange} ></textarea>
-        <input type="submit" value="Add Post" />
+      <form onSubmit={this.handleSubmit} className="form-group">
+        <label htmlFor="author">Input Author</label>
+        <input type="text" placeholder="Your Name" value={this.state.author} onChange={this.handleAuthorChange} className="form-control" />
+        <label htmlFor="text">Input Content</label>
+        <textarea value={this.state.text} onChange={this.handleTextChange} className="form-control" placeholder="Your content"></textarea>
+        <input type="submit" value="Add Post" className="form-control" />
       </form>
     )
   }
