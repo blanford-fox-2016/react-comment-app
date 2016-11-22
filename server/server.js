@@ -63,7 +63,7 @@ app.delete('/api/comments/:id', function(req, res){
       console.log(err);
     }else{
       var comments = JSON.parse(data)
-      newComments = comments.filter(comment => comment.id != req.params.id)
+      var newComments = comments.filter(comment => comment.id != req.params.id)
       // console.log(newComments);
       fs.writeFile(COMMENTS_FILE, JSON.stringify(newComments, null, 4), function(err){
         if(err){
