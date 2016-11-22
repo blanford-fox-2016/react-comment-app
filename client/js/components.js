@@ -83,7 +83,7 @@ var CommentBox = React.createClass({
       <div className="commentBox">
         <h1>Comments App</h1>
         <CommentList data={this.state.data} onDeleteSubmitCommentBox={this.handleDeleteSubmitCommentBox}/>
-        <CommentForm onDeleteSubmitCommentBox={this.handleCommentSubmitCommentBox} />
+        <CommentForm onCommentSubmit={this.handleCommentSubmit} />
       </div>
     )
   }
@@ -128,14 +128,10 @@ var Comment = React.createClass({
     // console.log(this.props.commentId);
     // console.log(this.props.all_data);
     // var r = confirm()
-    this.props.onDeleteSubmitCommentList(this.props.commentId)
-    // if(confirm("Are you sure want to delete?") === true){
-    //   this.props.onDeleteSubmit(id)
-    //   this.setState({
-    //     author: '',
-    //     text: ''
-    //   })
-    // }
+    // this.props.onDeleteSubmitCommentList(this.props.commentId)
+    if(confirm("Are you sure want to delete?") === true){
+      this.props.onDeleteSubmitCommentList(this.props.commentId)
+    }
   },
   render(){
     return (
