@@ -49,14 +49,21 @@ app.post('/api/comments', (req, res) => {
   })
 })
 
-// app.delete('/api/comments', (req, res) => {
-//     fs.writeFile(COMMENT_FILES, JSON.stringify(req.body, null, 4), (err) => {
-//       if(err) {
-//         console.log(err)
-//       }
-//       res.json()
-//     })
-//   })
+app.delete('/api/comments/:id', (req, res) => {
+  fs.readFile(COMMENT_FILES, (err, data) => {
+    if(err) {
+      console.log(err)
+    }
+    let comments = JSON.parse(data)
+    var newComments = comments.filter((comment) => comment.id !== req.params.id)
+    fs.writeFile(COMMENT_FILES, JSON.stringify(newComments, null, 4), (err) => {
+      if(err) {
+        console.log(err)
+      }
+      res.json(newComments)
+    })
+  })
+})
 
 
 

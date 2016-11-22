@@ -43,10 +43,9 @@ const CommentBox = React.createClass({
     var newComments = comments.filter((comment) => comment.id !== id)
     this.setState({data: newComments})
     $.ajax({
-      url: this.props.url,
+      url: `${this.props.url}/${id}`,
       dataTypes: 'json',
       type: 'DELETE',
-      data: newComments,
       success: (response) => {
         console.log('success')
       }.bind(this)
