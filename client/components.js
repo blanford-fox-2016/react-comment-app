@@ -22,7 +22,7 @@ let CommentBox = React.createClass({
 
     handleCommentSubmit: function (comment) {
         let comments = this.state.data
-        comment.id = Date.now()
+        comment._id = Date.now()
         let newComments = comments.concat([comment])
         this.setState({data: newComments})
         $.ajax({
@@ -31,7 +31,7 @@ let CommentBox = React.createClass({
             type: 'post',
             data: comment,
             success: function (response) {
-                this.setState({data: response})
+                this.setState({data: newComments})
             }.bind(this),
             error: function (xhr, status, err) {
                 this.setState({data: comments})
@@ -48,8 +48,8 @@ let CommentBox = React.createClass({
         return(
             <div className="commentBox">
                 <h1>Comment App</h1>
-                <CommentList data={this.state.data}/>
                 <CommentForm onCommentSubmit={this.handleCommentSubmit}/>
+                <CommentList data={this.state.data}/>
             </div>
         )
     }
@@ -59,7 +59,7 @@ let CommentList = React.createClass({
     //state less
     render: function () {
         let commentNodes = this.props.data.map(function (comment) {
-            return(<Comment key={comment._id} author={comment.author} text={comment.comment}/>)
+            return(<Comment key={comment._id} author={comment.author} comment={comment.comment}/>)
         })
         return(
             <div>{commentNodes}</div>
@@ -70,9 +70,16 @@ let CommentList = React.createClass({
 let Comment = React.createClass({
     render: function () {
         return(
-            <div className="comment">
-                <h4>{this.props.author}</h4>
-                <p>{this.props.text}</p>
+            <div>
+                <button className="btn btn-danger">Delete</button>
+                <div className="panel panel-default comment">
+                    <div className="panel-heading text-center">
+                        {this.props.author}
+                    </div>
+                    <div className="panel-body">
+                        {this.props.comment}
+                    </div>
+                </div>
             </div>
         )
     }
@@ -82,7 +89,7 @@ let CommentForm = React.createClass({
     getInitialState: function () {
         return {
             author: '',
-            text: ''
+            comment: ''
         }
     },
 
@@ -90,27 +97,31 @@ let CommentForm = React.createClass({
         this.setState({author: e.target.value})
     },
 
-    handleTextChange: function (e) {
-        this.setState({text: e.target.value})
+    handlecommentChange: function (e) {
+        this.setState({comment: e.target.value})
     },
 
     handleSubmit: function (e) {
         e.preventDefault()
         let author = this.state.author.trim()
-        let text = this.state.text.trim()
-        if (!text || ! author) return
+        let comment = this.state.comment.trim()
+        if (!comment || ! author) return
         else {
-            this.props.onCommentSubmit({author: author, comment: text})
+            this.props.onCommentSubmit({author: author, comment: comment})
             this.setState({author: ''})
-            this.setState({text: ''})
+            this.setState({comment: ''})
         }
     },
 
     render: function () {
         return (
             <form onSubmit={this.handleSubmit}>
-                <input type="text" placeholder="Your Name" value={this.state.author} onChange={this.handleAuthorChange}/>
-                <input type="text" placeholder="Your Comment" value={this.state.text} onChange={this.handleTextChange}/>
+                <div className="form-group">
+                    <input type="comment" placeholder="Your Name" value={this.state.author} onChange={this.handleAuthorChange}/>
+                </div>
+                <div className="form-group">
+                    <input type="comment" placeholder="Your Comment" value={this.state.comment} onChange={this.handlecommentChange}/>
+                </div>
                 <button type="submit" value="post">Submit</button>
             </form>
         )
