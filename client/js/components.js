@@ -83,9 +83,7 @@ var CommentBox = React.createClass({
 
 var CommentList = React.createClass({
   onCommentDelete(){
-    // ISIII
-    // DIIIII
-    // SINIIII
+
   },
   render: function(){
     var h2 = <h2>Comment List</h2>
@@ -98,13 +96,21 @@ var CommentList = React.createClass({
   }
 })
 
+var MarkdownViewer = React.createClass({
+  render: function() {
+      console.log(this.props.markdown)
+      var markdown = marked.parse(this.props.markdown);
+      return <div dangerouslySetInnerHTML={{__html: markdown }} />;
+  }
+});
+
 var Comment = React.createClass({
   render(){
     return (
       <div className="comment" id={this.props.id}>
         <div className="well">
           <h3>{this.props.author}</h3>
-          <p>{this.props.text}</p>
+          <h4><MarkdownViewer markdown={this.props.text} /></h4>
           <DeleteButton id={this.props.id} onCommentDelete={this.props.handleCommentDelete}/>
         </div>
       </div>
