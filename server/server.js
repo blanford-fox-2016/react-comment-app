@@ -45,11 +45,8 @@ app.post('/api/comments', function(req, res) {
 })
 
 app.delete('/api/comments', function(req, res) {
-	console.log(req.body.id)
-
 	var data = fs.readFileSync(COMMENTS_FILE)
 	var comments = JSON.parse(data)
-	console.log(comments)
 
 	for (var i = 0; i < comments.length; i++) {
       if (comments[i].id == req.body.id) {
@@ -68,5 +65,5 @@ app.delete('/api/comments', function(req, res) {
 })
 
 app.listen(app.get('port'), function() {
-    console.log('ya dha jalan!')
+    console.log('ya udah jalan bos!')
 })

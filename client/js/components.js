@@ -114,10 +114,10 @@ var Comment = React.createClass({
 
 var DeleteButton = React.createClass({
   handleDelete(e){
-    e.preventDefault()
     var id = this.props.id
-    console.log(id)
-    this.props.onCommentDelete(id)
+    if(confirm("Are you sure you want to delete?") === true){
+      this.props.onCommentDelete(id)
+    }
   },
   render(){
     return(
