@@ -49,8 +49,11 @@ let CommentBox = React.createClass({
         })
         this.setState({data: newData})
         $.ajax({
-            url: `${BASE_URL}/${id}`,
+            url: this.props.url,
             type: 'DELETE',
+            data: {
+                id: id
+            },
             success: function (data) {
                 this.setState({data: newData})
             }.bind(this)

@@ -23,7 +23,7 @@ module.exports = {
 
     deleteComment: (req, res) => {
         Comment.findOneAndRemove({
-            commentId: req.params.id
+            commentId: req.body.id
         }, function (err, data) {
             if (err) res.json(err)
             else res.json(data)
