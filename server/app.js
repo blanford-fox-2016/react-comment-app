@@ -11,10 +11,6 @@ const users = require('./routes/users');
 
 const app = express();
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
@@ -40,7 +36,7 @@ app.use((req, res, next) => {
 if (app.get('env') === 'development') {
   app.use((err, req, res, next) => {
     res.status(err.status || 500);
-    res.render('error', {
+    res.send({
       message: err.message,
       error: err
     });
@@ -51,7 +47,7 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use((err, req, res, next) => {
   res.status(err.status || 500);
-  res.render('error', {
+  res.send({
     message: err.message,
     error: {}
   });
