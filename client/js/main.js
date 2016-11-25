@@ -182,11 +182,19 @@ var CommentList = React.createClass({
   }
 })
 
+var MarkdownViewer = React.createClass({
+  render: function() {
+      var markdown = marked.parse(this.props.markdown);
+      return <div dangerouslySetInnerHTML={{__html: markdown }} />;
+  }
+});
+
 var Comment = React.createClass({
   handleDelete: function() {
     this.props.deleteComment(this.props.id)
   },
   render: function() {
+    // var commenttext = marked(this.props.content)
     return(
       <div className="panel panel-default" data-id={this.props.id}>
         <div className="panel-body">
@@ -194,9 +202,7 @@ var Comment = React.createClass({
 
           <div className="col-md-12">
             <h3 className="comm-author">{this.props.author}</h3>
-            <p>
-              {this.props.content}
-            </p>
+            <MarkdownViewer markdown={this.props.content} />
           </div>
         </div>
       </div>
