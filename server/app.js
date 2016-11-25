@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 
 const routes = require('./routes/index');
 const apiComment = require('./routes/apiComment');
+const cors = require('cors');
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors());
 
 app.use('/', routes);
 app.use('/api/comment', apiComment);
