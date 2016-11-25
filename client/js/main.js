@@ -26,21 +26,22 @@ var MainApp = React.createClass({
  },
  handleCommentSubmit: function(comment){
    var comments = this.state.data
-   comment.id = Date.now()
-   var newComments = comments.concat([comment])
+
+   var newComments = comments.push([comment])
    this.setState({
      data: newComments
    })
-
    $.ajax({
      url: this.props.url,
      dataType: 'JSON',
      type: 'POST',
      data: comment,
-     success: function(res_new_data){
-       this.setState({
-         data: res_new_data
-       })
+     success: function(newdata){
+       console.log(newdata);
+      //  this.setState({
+      //    data: newdata
+      //  })
+      this.loadComments()
      }.bind(this),
      error: function(xhr, status, err){
        this.setState({
@@ -50,59 +51,15 @@ var MainApp = React.createClass({
      }.bind(this)
    })
  },
- handleDeleteSubmitCommentBox: function(id){
+ handleDeleteComment: function(id){
    var comments = this.state.data
-   // ajax delete
-   console.log(this.props.url+id);
    $.ajax({
      url: this.props.url+id,
      dataType: 'JSON',
      method: 'DELETE',
      success: function(deleted_data){
        console.log(deleted_data);
-       this.setState({
-         data: deleted_data
-       })
-     }.bind(this),
-     error: function(xhr, status, err){
-       this.setState({
-         data: comments
-       })
-       console.error(this.props.url, status, err.toString())
-     }.bind(this)
-   })
- },
- handleEditFillForm : function(id){
-   var index = this.state.data.findIndex((comment) => comment.id === id)
-   // console.log(this.state.data[index]);
-   this.setState({
-     edit_form : {
-       commentId: this.state.data[index].id,
-       author: this.state.data[index].author,
-       text: this.state.data[index].text
-     }
-   })
- },
- handleCommentEdit(edited_data){
-   var comments = this.state.data
-   $.ajax({
-     url: this.props.url+edited_data.commentId,
-     dataType: 'JSON',
-     method: 'PUT',
-     data: {
-       author: edited_data.author,
-       text: edited_data.text
-     },
-     success: function(data_res){
-       console.log(data_res);
-       this.setState({
-         data: data_res,
-         edit_form:{
-           commentId: '',
-           author: '',
-           text: ''
-         }
-       })
+       this.loadComments();
      }.bind(this),
      error: function(xhr, status, err){
        this.setState({
@@ -120,7 +77,8 @@ var MainApp = React.createClass({
       <div>
       <NavBar />
       <div className="container">
-        <CommentForm />
+        <CommentForm onCommentSubmit={this.handleCommentSubmit}/>
+        <CommentList data={this.state.data} deleteComment={this.handleDeleteComment}/>
       </div>
       </div>
     )
@@ -141,6 +99,39 @@ var NavBar = React.createClass({
 
 
 var CommentForm = React.createClass({
+  getInitialState: function () {
+    return({
+      author: '',
+      content: ''
+    })
+  },
+  handleAuthorChange(e){
+    this.setState({
+      author: e.target.value
+    })
+  },
+  handleContentChange(e){
+    this.setState({
+      content: e.target.value
+    })
+  },
+  handleSubmit(e){
+    e.preventDefault()
+    var author = this.state.author.trim()
+    var content = this.state.content.trim()
+    if(!author || !content){
+      return alert('Please input your name and your comment!')
+    }else{
+      this.props.onCommentSubmit({
+        author: author,
+        content: content
+      })
+      this.setState({
+        author: '',
+        content: ''
+      })
+    }
+  },
   render: function() {
     return(
       <div className="row">
@@ -156,23 +147,68 @@ var CommentForm = React.createClass({
         <div className="collapse" id="addNewForm">
           <div className="well">
             <h3>Add New Comment</h3>
-            <div className="form-group">
-              <label className="control-label">Your Name (君の名は)</label>
-              <input type="text" className="form-control" placeholder="Enter your name (君の名は)" required />
-            </div>
-            <div className="form-group">
-              <label className="control-label">Your Comment</label>
-              <textarea className="form-control" placeholder="Enter the comment" required></textarea>
-            </div>
-            <div className="form-group">
-              <button type="button" name="button" className="btn btn-info" data-toggle="collapse" data-target="#addNewForm" aria-expanded="false" aria-controls="addNewForm">Submit <i className="glyphicon glyphicon-send"></i></button>
-            </div>
+            <form onSubmit={this.handleSubmit}>
+              <div className="form-group">
+                <label className="control-label">Your Name (君の名は)</label>
+                <input value={this.state.author} onChange={this.handleAuthorChange} type="text" className="form-control" placeholder="Enter your name (君の名は)" required />
+              </div>
+              <div className="form-group">
+                <label className="control-label">Your Comment</label>
+                <textarea type="text" value={this.state.content} onChange={this.handleContentChange} className="form-control" placeholder="Enter the comment" required></textarea>
+              </div>
+              <div className="form-group">
+                <button type="submit" name="button" className="btn btn-info" data-toggle="collapse" data-target="#addNewForm" aria-expanded="false" aria-controls="addNewForm">Submit <i className="glyphicon glyphicon-send"></i></button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
     )
   }
 })
+
+var CommentList = React.createClass({
+  render: function() {
+    var commentNodes = this.props.data.map(function(comment) {
+      return(
+        <Comment key={comment._id} id={comment._id} author={comment.author} content={comment.content} deleteComment={this.props.deleteComment}/>
+      )
+    }.bind(this))
+    return(
+      <div className="row">
+        {commentNodes}
+      </div>
+    )
+  }
+})
+
+var Comment = React.createClass({
+  handleDelete: function() {
+    this.props.deleteComment(this.props.id)
+  },
+  render: function() {
+    return(
+      <div className="panel panel-default" data-id={this.props.id}>
+        <div className="panel-body">
+          <button type="button" className="close" onClick={this.handleDelete.bind(this)}><span aria-hidden="true" className="glyphicon glyphicon-trash small"></span></button>
+
+          <div className="col-md-12">
+            <h3 className="comm-author">{this.props.author}</h3>
+            <p>
+              {this.props.content}
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+})
+
+// var ModalDelete = React.createClass({
+//   render: function() {
+//
+//   }
+// })
 
 
 // Rendering to the host
