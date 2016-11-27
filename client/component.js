@@ -58,6 +58,23 @@ var CommentBox = React.createClass({
 
     }
   },
+  updateItem: function(id, author, text) {
+    $.ajax({
+      url: `http://localhost:3000/api/comments`,
+      method: 'PUT',
+      dataType: 'json',
+      data: {
+        id: id,
+        author: author,
+        text: text
+      }, success: function(response) {
+        this.setState({data: response})
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    })
+  },
   componentDidMount: function() {
     this.loadComments()
   },
@@ -66,7 +83,7 @@ var CommentBox = React.createClass({
       <div className="commentBox">
         <h1>Comments App</h1>
         <CommentForm onCommentSubmit={this.handleCommentSubmit}/>
-        <CommentList data={this.state.data} deleteItem={this.deleteItem}/>
+        <CommentList data={this.state.data} deleteItem={this.deleteItem} updateItem={this.updateItem}/>
       </div>
     )
   }
@@ -75,7 +92,7 @@ var CommentBox = React.createClass({
 var CommentList = React.createClass({
   render: function() {
     var commentNodes = this.props.data.map(function(comment) {
-      return(<Comment key={comment.id} id={comment.id} author={comment.author} text={comment.text} deleteItem={this.props.deleteItem}/>)
+      return(<Comment key={comment.id} id={comment.id} author={comment.author} text={comment.text} deleteItem={this.props.deleteItem} updateItem={this.props.updateItem}/>)
     }.bind(this))
     return(
       <table className="table">
@@ -96,26 +113,86 @@ var CommentList = React.createClass({
 })
 
 var Comment = React.createClass({
+    getInitialState: function() {
+      return {author: this.props.author, text: this.props.text, editing: false}
+    },
     handleDelete: function() {
       this.props.deleteItem(this.props.id)
     },
+    updateForm: function() {
+      this.setState({editing: true})
+    },
+    atAuthorChange: function(e) {
+      this.setState({author: e.target.value})
+      console.log(this.state.author);
+    },
+    atTextChange: function(e) {
+      this.setState({text: e.target.value})
+      console.log(this.state.text);
+
+    },
+    cancel: function(e) {
+      e.preventDefault()
+      this.setState({editing: false, author: this.props.author, text: this.props.text})
+    },
+    confirmEdit: function(e) {
+      e.preventDefault()
+      let author = this.state.author
+      let text = this.state.text
+      if (!author || !text) {
+        return ;
+      } else {
+        this.props.updateItem(this.props.id, this.state.author, this.state.text)
+        this.setState({editing: false})
+      }
+    },
     render: function() {
-      return(
-          <tr>
-          <td>{this.props.author}</td>
-          <td>{this.props.text}</td>
-          <td>
-          <div className="form-group">
-          <button className="btn btn-warning">Update</button>
-          </div>
-          <div className="form-group">
-          <button className="btn btn-danger" onClick={this.handleDelete.bind(this)}>Delete</button>
-          </div>
-          </td>
-          </tr>
-      )
+      if (!this.state.editing) {
+        var convertAuthor = marked.parse(this.props.author)
+        var convertText = marked.parse(this.props.text)
+        return(
+            <tr>
+            <td>{this.props.author}</td>
+            <MarkdownText markdown={this.props.text}/>
+            <td>
+            <div className="form-group">
+            <button className="btn btn-warning" onClick={this.updateForm.bind(this)}>Update</button>
+            </div>
+            <div className="form-group">
+            <button className="btn btn-danger" onClick={this.handleDelete.bind(this)}>Delete</button>
+            </div>
+            </td>
+            </tr>
+        )
+      } else {
+        return(
+          <form className="form-inline well" onSubmit={this.confirmEdit.bind(this)}>
+              <div className="form-group">
+                  <label className="inline">Author Name</label>
+                  <input type="text" className="form-control" id="form-edit-author" value={this.state.author} onChange={this.atAuthorChange.bind(this)} />
+              </div>
+              <div className="form-group">
+                  <label className="inline">Frequency</label>
+                  <input type="text" className="form-control" id="form-edit-text" value={this.state.text} onChange={this.atTextChange.bind(this)}/>
+              </div>
+              <button className="btn btn-primary" type="submit">Confirm Edit</button>
+              <button className="btn btn-default" onClick={this.cancel.bind(this)}>Cancel</button>
+          </form>
+        )
+      }
     }
 })
+
+var MarkdownText = React.createClass({
+  render: function() {
+      var markdown = marked.parse(this.props.markdown);
+      return (
+        <td>
+        <div dangerouslySetInnerHTML={{__html: markdown }} />
+      </td>
+    )
+  }
+});
 
 var CommentForm = React.createClass({
   getInitialState: function() {
@@ -148,7 +225,7 @@ var CommentForm = React.createClass({
         </div>
         <div className="form-group">
         <label>Text : </label>
-        <input className="form-control" type="text" placeholder="Enter Text" value={this.state.text} onChange={this.handleTextChange} />
+        <textarea className="form-control" type="text" placeholder="Enter Text" value={this.state.text} onChange={this.handleTextChange} />
         </div>
         <button className="btn btn-primary" type="submit">Post</button>
       </form>

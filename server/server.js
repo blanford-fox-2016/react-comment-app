@@ -64,6 +64,22 @@ app.delete('/api/comments', function(req, res) {
     }
 })
 
+app.put('/api/comments', function(req, res) {
+  var bulk = fs.readFileSync(COMMENTS_FILE)
+  var data = JSON.parse(bulk)
+  var newData = data.map(cb_result => cb_result.id === req.body.id
+      ? Object.assign({}, cb_result, {id: req.body.id, author: req.body.author, text: req.body.text})
+      : cb_result)
+      console.log(newData);
+      fs.writeFile(COMMENTS_FILE, JSON.stringify(newData, null, 4), function(err) {
+          if (err) {
+              console.log(err);
+          } else {
+              res.json(newData)
+          }
+      })
+
+})
 
 app.listen(app.get('port'), function() {
     console.log('Server UP');
